@@ -1,24 +1,33 @@
 import PostItem from 'components/PostItem/PostItem'
-import React from 'react'
+import React, { useMemo } from 'react'
 import { PostListWrapper } from './PostList.styles'
+import { PostListItemType } from 'types/Postitem.types'
 
-const POST_ITEM_DATA = {
-  title: 'Post Item Title',
-  date: '2020.01.29.',
-  categories: ['Web', 'Frontend', 'Testing'],
-  summary:
-    'Lorem ipsum dolor sit amet consectetur adipisicing elit. Provident repellat doloremque fugit quis rem temporibus! Maxime molestias, suntrem debitis odit harum impedit. Modi cupiditate harum dignissimos eos in corrupti!',
-  thumbnail:
-    'https://res.cloudinary.com/practicaldev/image/fetch/s--3BRTZur0--/c_imagga_scale,f_auto,fl_progressive,h_420,q_auto,w_1000/https://miro.medium.com/max/800/0%2AaH8YUI7nqAZ6b-V_.png',
-  link: 'https://www.google.co.kr/',
+interface PostListProps {
+  selectedCategory: string
+  posts: PostListItemType[]
 }
 
-const PostList = () => {
+const PostList = ({ posts, selectedCategory }: PostListProps) => {
+  const postListData = useMemo(
+    () =>
+      posts.filter(
+        ({
+          node: {
+            frontmatter: { categories },
+          },
+        }: PostListItemType) =>
+          selectedCategory !== 'All'
+            ? categories.includes(selectedCategory)
+            : true,
+      ),
+    [selectedCategory],
+  )
   return (
     <PostListWrapper>
-      <PostItem {...POST_ITEM_DATA} />
-      <PostItem {...POST_ITEM_DATA} />
-      <PostItem {...POST_ITEM_DATA} />
+      {postListData.map(({ node: { id, frontmatter } }: PostListItemType) => (
+        <PostItem {...frontmatter} link="https://www.google.co.kr/" key={id} />
+      ))}
     </PostListWrapper>
   )
 }
